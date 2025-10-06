@@ -44,6 +44,225 @@ html {
   opacity: 0.9;
 }
 
+/* AI Suggestion Feature */
+.suggestion-hero {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 3rem clamp(1.5rem, 4vw, 4rem);
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.suggestion-hero h2 {
+  color: #667eea;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.suggestion-subtitle {
+  color: #666;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.suggestion-input-container {
+  display: flex;
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.suggestion-input {
+  flex: 1;
+  min-width: 300px;
+  padding: 1.2rem 1.5rem;
+  border: 3px solid #667eea;
+  border-radius: 50px;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  transition: all 0.3s ease;
+  background: white;
+  color: #2c3e50;
+}
+
+.suggestion-input:focus {
+  outline: none;
+  border-color: #764ba2;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-suggestion {
+  padding: 1.2rem 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  white-space: nowrap;
+}
+
+.btn-suggestion:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+}
+
+.btn-suggestion:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-suggestions {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 15px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-suggestions p {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.suggestions-container {
+  margin-top: 2rem;
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.4s ease;
+}
+
+.suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #667eea;
+}
+
+.suggestions-header h3 {
+  color: #667eea;
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  font-weight: 700;
+  margin: 0;
+}
+
+.close-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.close-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.suggestion-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.suggestion-card:hover {
+  border-color: #667eea;
+  transform: translateX(8px);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.suggestion-number {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+}
+
+.suggestion-content {
+  flex: 1;
+  text-align: left;
+}
+
+.suggestion-query {
+  margin-bottom: 0.5rem;
+}
+
+.suggestion-query code {
+  background: #2c3e50;
+  color: #2ecc71;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: clamp(0.9rem, 1.3vw, 1rem);
+  font-family: 'Courier New', monospace;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.suggestion-description {
+  color: #555;
+  font-size: clamp(0.9rem, 1.2vw, 1rem);
+  line-height: 1.5;
+}
+
+.suggestion-action {
+  flex-shrink: 0;
+}
+
+.use-btn {
+  background: #667eea;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.suggestion-card:hover .use-btn {
+  background: #764ba2;
+  transform: translateX(3px);
+}
+
 .container {
   width: 100%;
   max-width: 1400px;
@@ -574,6 +793,42 @@ html {
 
   .header p {
     font-size: 0.95rem;
+  }
+
+  .suggestion-hero {
+    padding: 2rem 1.5rem;
+  }
+
+  .suggestion-input-container {
+    flex-direction: column;
+  }
+
+  .suggestion-input {
+    min-width: 100%;
+  }
+
+  .btn-suggestion {
+    width: 100%;
+  }
+
+  .suggestion-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .suggestion-content {
+    text-align: center;
+  }
+
+  .suggestions-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .close-btn {
+    width: 100%;
   }
 
   .container {

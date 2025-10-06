@@ -12,6 +12,12 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [operators, setOperators] = useState([]);
 
+  // AI Suggestion feature
+  const [userIntent, setUserIntent] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   // Custom dork builder state
   const [customDork, setCustomDork] = useState({
     site: '',
@@ -140,12 +146,126 @@ function App() {
     link.click();
   };
 
+  const handleGetSuggestions = async () => {
+    if (!userIntent.trim()) {
+      alert('Please describe what you want to find');
+      return;
+    }
+
+    setLoadingSuggestions(true);
+    setSuggestions([]);
+
+    try {
+      const response = await fetch(`${API_URL}/suggest-dorks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ intent: userIntent })
+      });
+
+      const data = await response.json();
+      setSuggestions(data.suggestions);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error('Error getting suggestions:', error);
+      alert('Failed to get suggestions. Make sure the backend is running.');
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  const handleUseSuggestion = (query) => {
+    setSearchQuery(query);
+    setShowSuggestions(false);
+    setUserIntent('');
+    setSuggestions([]);
+    // Scroll to search tab
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="App">
       <header className="header">
         <h1>🔍 Advanced Dorking Tool</h1>
         <p>The Ultimate Google Dorking & Search Intelligence Platform</p>
       </header>
+
+      {/* AI-Powered Dork Suggestion Feature */}
+      <div className="container">
+        <div className="suggestion-hero">
+          <h2>✨ What do you want to find?</h2>
+          <p className="suggestion-subtitle">
+            Describe what you're looking for, and we'll suggest the perfect dork commands
+          </p>
+
+          <div className="suggestion-input-container">
+            <input
+              type="text"
+              className="suggestion-input"
+              placeholder="e.g., 'find passwords', 'admin login pages', 'pdf documents', 'exposed cameras'..."
+              value={userIntent}
+              onChange={(e) => setUserIntent(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleGetSuggestions()}
+            />
+            <button
+              className="btn btn-suggestion"
+              onClick={handleGetSuggestions}
+              disabled={loadingSuggestions}
+            >
+              {loadingSuggestions ? '⏳ Getting Suggestions...' : '🪄 Get Suggestions'}
+            </button>
+          </div>
+
+          {loadingSuggestions && (
+            <div className="loading-suggestions">
+              <div className="spinner"></div>
+              <p>Analyzing your intent and finding the best dork commands...</p>
+            </div>
+          )}
+
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="suggestions-container">
+              <div className="suggestions-header">
+                <h3>🎯 Suggested Dork Commands</h3>
+                <button
+                  className="close-btn"
+                  onClick={() => {
+                    setShowSuggestions(false);
+                    setSuggestions([]);
+                    setUserIntent('');
+                  }}
+                >
+                  ✕ Close
+                </button>
+              </div>
+
+              <div className="suggestions-list">
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="suggestion-card"
+                    onClick={() => handleUseSuggestion(suggestion.query)}
+                  >
+                    <div className="suggestion-number">{index + 1}</div>
+                    <div className="suggestion-content">
+                      <div className="suggestion-query">
+                        <code>{suggestion.query}</code>
+                      </div>
+                      <div className="suggestion-description">
+                        {suggestion.description}
+                      </div>
+                    </div>
+                    <div className="suggestion-action">
+                      <span className="use-btn">Use This →</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="container">
         <div className="tabs">
