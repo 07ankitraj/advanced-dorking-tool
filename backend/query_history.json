@@ -1,0 +1,26 @@
+[
+  {
+    "query": "filetype:sql intext:password",
+    "engine": "bing",
+    "results_count": 10,
+    "timestamp": "2025-10-07T01:38:04.357520"
+  },
+  {
+    "query": "filetype:sql intext:password",
+    "engine": "google",
+    "results_count": 1,
+    "timestamp": "2025-10-07T01:37:56.886667"
+  },
+  {
+    "query": "intitle:\"login\" inurl:\"login.php\"",
+    "engine": "bing",
+    "results_count": 10,
+    "timestamp": "2025-10-07T01:31:23.026954"
+  },
+  {
+    "query": "intitle:\"login\" inurl:\"login.php\"",
+    "engine": "google",
+    "results_count": 1,
+    "timestamp": "2025-10-07T01:31:12.954914"
+  }
+]
