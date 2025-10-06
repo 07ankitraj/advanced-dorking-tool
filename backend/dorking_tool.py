@@ -518,6 +518,149 @@ def generate_config_query(data: DomainDork):
     return {"query": query, "description": "Find configuration files"}
 
 
+class SuggestionRequest(BaseModel):
+    intent: str
+
+
+@app.post("/suggest-dorks")
+def suggest_dorks(request: SuggestionRequest):
+    """Suggest relevant dork queries based on user intent"""
+    intent = request.intent.lower()
+    suggestions = []
+    
+    # Intent-based dork suggestions
+    intent_map = {
+        # Security related
+        "password": [
+            {"query": 'filetype:sql intext:password', "description": "Find SQL files containing passwords"},
+            {"query": 'filetype:env "DB_PASSWORD"', "description": "Find environment files with database passwords"},
+            {"query": 'filetype:txt intext:"username" intext:"password"', "description": "Find text files with login credentials"},
+            {"query": 'filetype:log intext:password', "description": "Find log files mentioning passwords"},
+        ],
+        "login": [
+            {"query": 'inurl:admin intitle:login', "description": "Find admin login pages"},
+            {"query": 'inurl:administrator intitle:login', "description": "Find administrator login pages"},
+            {"query": 'inurl:wp-admin', "description": "Find WordPress admin panels"},
+            {"query": 'inurl:"admin/login.php"', "description": "Find PHP admin login pages"},
+        ],
+        "admin": [
+            {"query": 'inurl:admin intitle:login', "description": "Find admin login pages"},
+            {"query": 'inurl:"admin/admin.php"', "description": "Find admin control panels"},
+            {"query": 'intitle:"Admin Panel"', "description": "Find pages titled Admin Panel"},
+            {"query": 'inurl:administrator', "description": "Find administrator areas"},
+        ],
+        "database": [
+            {"query": 'filetype:sql "MySQL dump"', "description": "Find MySQL database dumps"},
+            {"query": 'filetype:sql intext:password', "description": "Find SQL files with passwords"},
+            {"query": 'filetype:mdb', "description": "Find Microsoft Access database files"},
+            {"query": 'intitle:"Index of" +"database"', "description": "Find exposed database directories"},
+        ],
+        "camera": [
+            {"query": 'inurl:"view.shtml" intitle:"Network Camera"', "description": "Find network cameras"},
+            {"query": 'inurl:"/view/index.shtml"', "description": "Find camera view pages"},
+            {"query": 'intitle:"webcamXP 5"', "description": "Find WebcamXP cameras"},
+            {"query": 'inurl:"ViewerFrame?Mode="', "description": "Find camera viewer frames"},
+        ],
+        "pdf": [
+            {"query": 'filetype:pdf "confidential"', "description": "Find confidential PDF documents"},
+            {"query": 'filetype:pdf inurl:resume', "description": "Find resume PDFs"},
+            {"query": 'filetype:pdf "internal use only"', "description": "Find internal PDFs"},
+            {"query": 'filetype:pdf site:edu', "description": "Find PDFs on educational sites"},
+        ],
+        "document": [
+            {"query": 'filetype:doc "confidential"', "description": "Find confidential Word documents"},
+            {"query": 'filetype:xls "confidential"', "description": "Find confidential Excel files"},
+            {"query": 'filetype:ppt site:edu', "description": "Find PowerPoint presentations on educational sites"},
+            {"query": 'filetype:docx "curriculum vitae"', "description": "Find CV documents"},
+        ],
+        "backup": [
+            {"query": 'intitle:"Index of" +"backup"', "description": "Find backup directories"},
+            {"query": 'filetype:bak', "description": "Find backup files"},
+            {"query": 'filetype:sql "backup"', "description": "Find SQL backup files"},
+            {"query": 'inurl:backup intitle:index.of', "description": "Find indexed backup folders"},
+        ],
+        "config": [
+            {"query": 'filetype:env "DB_PASSWORD"', "description": "Find environment configuration files"},
+            {"query": 'filetype:config intext:password', "description": "Find config files with passwords"},
+            {"query": 'intitle:"Index of" +"config"', "description": "Find configuration directories"},
+            {"query": 'filetype:ini intext:password', "description": "Find INI config files with passwords"},
+        ],
+        "error": [
+            {"query": 'intext:"SQL syntax" site:*', "description": "Find SQL error pages"},
+            {"query": 'intitle:"Error" "MySQL"', "description": "Find MySQL error messages"},
+            {"query": 'intext:"Warning: mysql_" site:*', "description": "Find MySQL warning messages"},
+            {"query": 'intext:"PHP Parse error"', "description": "Find PHP parse errors"},
+        ],
+        "email": [
+            {"query": 'filetype:xls intext:email', "description": "Find Excel files with email addresses"},
+            {"query": 'filetype:csv intext:"email"', "description": "Find CSV files with emails"},
+            {"query": '@gmail.com filetype:txt', "description": "Find text files with Gmail addresses"},
+            {"query": 'intext:"@" filetype:xls', "description": "Find spreadsheets with email addresses"},
+        ],
+        "api": [
+            {"query": 'inurl:api_key OR inurl:apikey', "description": "Find exposed API keys in URLs"},
+            {"query": 'filetype:json "api_key"', "description": "Find JSON files with API keys"},
+            {"query": 'intext:"api_secret" OR intext:"api_key"', "description": "Find API credentials in text"},
+            {"query": 'site:github.com "API_KEY"', "description": "Find exposed API keys on GitHub"},
+        ],
+        "sql injection": [
+            {"query": 'inurl:".php?id=" intext:"SQL syntax"', "description": "Find potential SQL injection vulnerabilities"},
+            {"query": 'inurl:".php?catid=" intext:"MySQL"', "description": "Find vulnerable category pages"},
+            {"query": 'inurl:"index.php?id=" site:*', "description": "Find pages vulnerable to SQL injection"},
+            {"query": 'inurl:"product.php?id="', "description": "Find vulnerable product pages"},
+        ],
+        "ssh": [
+            {"query": 'intitle:"Index of" +".ssh"', "description": "Find exposed SSH directories"},
+            {"query": 'filetype:key "PRIVATE KEY"', "description": "Find SSH private keys"},
+            {"query": 'filetype:pem "PRIVATE KEY"', "description": "Find PEM private keys"},
+            {"query": 'intext:"BEGIN RSA PRIVATE KEY"', "description": "Find RSA private keys"},
+        ],
+        "git": [
+            {"query": 'intitle:"Index of" +".git"', "description": "Find exposed Git repositories"},
+            {"query": 'inurl:".git/config"', "description": "Find Git config files"},
+            {"query": 'inurl:.git intitle:index.of', "description": "Find indexed Git folders"},
+            {"query": 'filetype:git', "description": "Find Git related files"},
+        ],
+    }
+    
+    # Search for matching intents
+    for key, dorks in intent_map.items():
+        if key in intent:
+            suggestions.extend(dorks)
+    
+    # If no specific match, search for partial matches
+    if not suggestions:
+        for key, dorks in intent_map.items():
+            # Check if any word in the intent matches the key
+            intent_words = intent.split()
+            key_words = key.split()
+            if any(word in key for word in intent_words) or any(word in intent for word in key_words):
+                suggestions.extend(dorks)
+    
+    # If still no match, provide popular/general suggestions
+    if not suggestions:
+        suggestions = [
+            {"query": 'filetype:pdf "confidential"', "description": "Find confidential PDF documents"},
+            {"query": 'inurl:admin intitle:login', "description": "Find admin login pages"},
+            {"query": 'filetype:sql intext:password', "description": "Find SQL files with passwords"},
+            {"query": 'intitle:"Index of" +"backup"', "description": "Find backup directories"},
+            {"query": 'filetype:env "DB_PASSWORD"', "description": "Find environment configuration files"},
+        ]
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_suggestions = []
+    for item in suggestions:
+        if item["query"] not in seen:
+            seen.add(item["query"])
+            unique_suggestions.append(item)
+    
+    return {
+        "intent": request.intent,
+        "suggestions": unique_suggestions[:10]  # Limit to top 10 suggestions
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
